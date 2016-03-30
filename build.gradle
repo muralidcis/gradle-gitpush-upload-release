@@ -5,17 +5,15 @@ apply plugin: 'maven-publish'
 buildscript {
     repositories {
 	jcenter()
+        mavenCentral()
+
     }
     
     dependencies {
-        classpath 'org.ajoberstar:gradle-git:1.2.0'
+	classpath 'org.ajoberstar:gradle-git:1.4.0'
 	classpath 'co.riiid:gradle-github-plugin:0.4.2'
     }
 
-    credentials {
-	username = "muralidcis" //System.getenv("mavenUser")
-	password = "Thunderbird2003!" //System.getenv("mavenPassword")
-    }    
 }
 
 apply plugin: 'org.ajoberstar.grgit'
@@ -39,24 +37,34 @@ def getVersion = { ->
     } catch (ignored) {
         return 'undefined tag';
     }
-		 }
+}
 
+// Create the tag and push 
 task projectrelease << {
-    // Adding tag and pushing to git 
     def tagName = getVersion()
+    println 'creating tag for '+tagName
     grgit.tag.add(name: tagName, message: "Addition of new tags for toolkit release ${tagName}",force:true,  annotate: true)
     grgit.push(refsOrSpecs: [tagName])
 }
 
+// To remove the tag and push 
+task removeTag <<{
+    def tagName = getVersion()
+    println 'removing tag '+tagName
+    grgit.tag.remove(names: [tagName])
+    grgit.push(tags: true)	
+}
+
+// git relase upload configuration and push the files to tag release.
 github {
-    owner = 'muralidcis'
-    repo = 'visualization'
-    token = '4e966e10f517eda5a033a84fdde011b5aaace4e2'
-    tagName = 'REL-unspecified2'
+    owner = userName
+    repo = repoName    
+    token = tokenKey
+    tagName = getVersion()
     targetCommitish = 'master'
-    name = 'fd-toolkit-REL-unspecified2'
+    name = 'fd-toolkit-'+getVersion()
     body = inputFile.text
-    assets = ['toolkit.zip']
+    assets = ['fd-development-kit-'+getVersion()+'.zip']
 }
 
 
