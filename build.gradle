@@ -1,0 +1,62 @@
+apply plugin: 'java'
+apply plugin: 'maven'
+apply plugin: 'maven-publish'
+
+buildscript {
+    repositories {
+	jcenter()
+    }
+    
+    dependencies {
+        classpath 'org.ajoberstar:gradle-git:1.2.0'
+	classpath 'co.riiid:gradle-github-plugin:0.4.2'
+    }
+
+    credentials {
+	username = "muralidcis" //System.getenv("mavenUser")
+	password = "Thunderbird2003!" //System.getenv("mavenPassword")
+    }    
+}
+
+apply plugin: 'org.ajoberstar.grgit'
+apply plugin: 'co.riiid.gradle'
+
+// Add the release notes
+def inputFile = new File("README.md")
+
+// Get tag version Name
+def getVersion = { ->
+    try {
+        def stdout = new ByteArrayOutputStream()	
+        exec {
+            commandLine 'git', 'describe', '--tags'
+            standardOutput = stdout
+        }
+	
+        def versionComponents = stdout.toString().trim().split("-")
+	return versionComponents[0]
+	
+    } catch (ignored) {
+        return 'undefined tag';
+    }
+		 }
+
+task projectrelease << {
+    // Adding tag and pushing to git 
+    def tagName = getVersion()
+    grgit.tag.add(name: tagName, message: "Addition of new tags for toolkit release ${tagName}",force:true,  annotate: true)
+    grgit.push(refsOrSpecs: [tagName])
+}
+
+github {
+    owner = 'muralidcis'
+    repo = 'visualization'
+    token = '4e966e10f517eda5a033a84fdde011b5aaace4e2'
+    tagName = 'REL-unspecified2'
+    targetCommitish = 'master'
+    name = 'fd-toolkit-REL-unspecified2'
+    body = inputFile.text
+    assets = ['toolkit.zip']
+}
+
+
