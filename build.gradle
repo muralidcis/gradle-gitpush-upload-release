@@ -59,7 +59,7 @@ task removeTag <<{
 github {
     owner = userName
     repo = repoName    
-    token = tokenKey
+    token =  tokenKey //'92f7603cec027a1c28b39f79f419e0e294f42561'
     tagName = getVersion()
     targetCommitish = 'master'
     name = 'fd-toolkit-'+getVersion()
