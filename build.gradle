@@ -52,19 +52,19 @@ task removeTag <<{
     def tagName = getVersion()
     println 'removing tag '+tagName
     grgit.tag.remove(names: [tagName])
-    grgit.push(tags: true)	
+    grgit.push(refsOrSpecs: [':refs/tags/'+tagName])
 }
 
 // git relase upload configuration and push the files to tag release.
 github {
     owner = userName
     repo = repoName    
-    token =  tokenKey //'92f7603cec027a1c28b39f79f419e0e294f42561'
+    token = '3edb8131202cbe1c0168317f243a7beb07b50ede'
     tagName = getVersion()
     targetCommitish = 'master'
     name = 'fd-toolkit-'+getVersion()
     body = inputFile.text
-    assets = ['fd-development-kit-'+getVersion()+'.zip']
+    assets = ['nomadic.zip']
 }
 
 
